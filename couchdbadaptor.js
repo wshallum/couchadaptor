@@ -56,9 +56,6 @@ CouchAdaptor.prototype.saveTiddler = function(tiddler, callback, options) {
 	var self = this;
 	var convertedTiddler = this.convertToCouch(tiddler)
 	var tiddlerInfo = options.tiddlerInfo;
-	this.logger.log(tiddler);
-	this.logger.log(convertedTiddler);
-	this.logger.log(tiddlerInfo);
 	delete convertedTiddler._rev;
 	if (tiddlerInfo.adaptorInfo && tiddlerInfo.adaptorInfo._rev) {
 		convertedTiddler._rev = tiddlerInfo.adaptorInfo._rev;
