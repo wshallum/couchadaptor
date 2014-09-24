@@ -1,0 +1,9 @@
+{
+"title": "$:/plugins/wshallum/couchadaptor",
+"description": "sync adaptor for CouchDB",
+"author": "William Shallum",
+"version": "0.0.1",
+"core-version": ">=5.0.8",
+"source": "https://github.com/wshallum/couchadaptor",
+"plugin-type": "plugin"
+}
