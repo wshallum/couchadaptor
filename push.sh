@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ ! -f ./push_settings ] ; then
+	echo "ERROR: push_settings file must exist" >&2
+	exit 1
+fi
 . ./push_settings
 
 # TWDIR: tiddlywiki source root
