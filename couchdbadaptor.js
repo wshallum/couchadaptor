@@ -17,6 +17,7 @@ function CouchAdaptor(options) {
 	this.logger = new $tw.utils.Logger("CouchAdaptor");
 	this.urlPrefix = '/tw/'; // TODO make configurable
 	this.designDocName = '_design/tw'; // TODO make configurable
+	this.sessionUrl = '/_session';
 }
 
 /*
@@ -155,6 +156,54 @@ CouchAdaptor.prototype.convertFromCouch = function(tiddlerFields) {
 	return result;
 }
 
+CouchAdaptor.prototype.getStatus = function(callback) {
+	$tw.utils.httpRequest({
+		url: this.sessionUrl,
+		callback: function(err, data) {
+			if (err) {
+				return callback(err);
+			}
+			var json = null;
+			var isLoggedIn = false;
+			var username = null;
+			try {
+				json = JSON.parse(data);
+			} catch (e) {
+			}
+			if (json && json.userCtx) {
+				username = json.userCtx.name;
+				isLoggedIn = (username !== null);
+			}
+			callback(null, isLoggedIn, username);
+		}
+	});
+}
+
+CouchAdaptor.prototype.login = function(username, password, callback) {
+	var options = {
+		url: this.sessionUrl,
+		type: "POST",
+		data: {
+			name: username,
+			password: password
+		},
+		callback: function(err, data) {
+			callback(err);
+		}
+	};
+	$tw.utils.httpRequest(options);
+}
+
+CouchAdaptor.prototype.logout = function(callback) {
+	var options = {
+		url: this.sessionUrl,
+		type: "DELETE",
+		callback: function(err) {
+			callback(err);
+		}
+	};
+	$tw.utils.httpRequest(options);
+}
 
 
 if($tw.browser && document.location.protocol.substr(0,4) === "http" ) {

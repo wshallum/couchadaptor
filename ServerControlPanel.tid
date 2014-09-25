@@ -1,0 +1,12 @@
+title: $:/plugins/wshallum/couchadaptor/ServerControlPanel
+caption: Server
+tags: $:/tags/ControlPanel
+
+<$reveal state="$:/status/IsLoggedIn" type="nomatch" text="yes">
+Log in to ~CouchDB: <$button message="tm-login">Login</$button>
+</$reveal>
+<$reveal state="$:/status/IsLoggedIn" type="match" text="yes">
+Logged in as {{$:/status/UserName}} <$button message="tm-logout">Logout</$button>
+</$reveal>
+
+<$button message="tm-server-refresh">Refresh</$button> to fetch changes from the server immediately
