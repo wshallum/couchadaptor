@@ -21,6 +21,6 @@ ddoc.validate_doc_update = function(newDoc, oldDoc, userCtx) {
 	}
 }
 
-couchapp.loadAttachments(ddoc, "../../../tmp");
+couchapp.loadAttachments(ddoc, "out");
 
 module.exports = ddoc;

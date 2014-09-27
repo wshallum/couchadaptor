@@ -1,0 +1,15 @@
+title: TiddlyWiki5 for Couch
+
+This uses https://github.com/wshallum/couchadaptor ([[$:/plugins/wshallum/couchadaptor]]) and uses the built-in sync implementation (shared with [[TiddlyWiki in the Sky for TiddlyWeb|http://tiddlywiki.com/static/TiddlyWiki%2520in%2520the%2520Sky%2520for%2520TiddlyWeb.html]])
+
+! Features
+
+* Runs as a [[CouchApp|http://guide.couchdb.org/editions/1/en/standalone.html]]
+* Loads skinny tiddlers from [[CouchDB|http://couchdb.apache.org/]] at startup/login
+* Subsequently syncs changes back to the server
+* Polls for changes from the server
+
+! Issues (inherited from the sync implementation?)
+
+* [[$:/DefaultTiddlers]] doesn't work because thanks to lazy loading it is only loaded after it is needed
+* UI state (eg current tab status) is shared between all users of the wiki, meaning that the UI can spontaneously change in response to a server sync
