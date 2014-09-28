@@ -17,6 +17,10 @@ ddoc.views['skinny-tiddlers'] = {
 // no anonymous write
 ddoc.validate_doc_update = function(newDoc, oldDoc, userCtx) {
 	if (userCtx.name === null) {
+		/* check if the unnamed user has _admin role (admin party mode) */
+		if (userCtx.roles.length > 0 && userCtx.roles[0] === "_admin") {
+			return;
+		}
 		throw({unauthorized: "Please log in"});
 	}
 }
