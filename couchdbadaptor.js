@@ -63,7 +63,7 @@ CouchAdaptor.prototype.saveTiddler = function(tiddler, callback, options) {
 	}
 	convertedTiddler = JSON.stringify(convertedTiddler, null, false);
 	$tw.utils.httpRequest({
-		url: this.urlPrefix +  "/" + encodeURIComponent(tiddler.fields.title),
+		url: this.urlPrefix +  "/" + encodeURIComponent(self.mangleTitle(tiddler.fields.title)),
 		type: "PUT",
 		headers: {
 			"Content-type": "application/json"
@@ -84,7 +84,7 @@ CouchAdaptor.prototype.saveTiddler = function(tiddler, callback, options) {
 CouchAdaptor.prototype.loadTiddler = function(title, callback) {
 	var self = this;
 	$tw.utils.httpRequest({
-		url: this.urlPrefix + "/" + encodeURIComponent(title),
+		url: this.urlPrefix + "/" + encodeURIComponent(self.mangleTitle(title)),
 		callback: function(err, data, request) {
 			if(err) {
 				return callback(err);
@@ -95,6 +95,48 @@ CouchAdaptor.prototype.loadTiddler = function(title, callback) {
 	});
 };
 
+/*
+CouchDB does not like document IDs starting with '_'.
+Convert leading '_' to '%5f' and leading '%' to '%25'
+Only used to compute _id / URL for a tiddler. Does not affect 'title' field.
+*/
+CouchAdaptor.prototype.mangleTitle = function(title) {
+	if (title.length == 0) {
+		return title;
+	}
+	var firstChar = title.charAt(0);
+	var restOfIt = title.substring(1);
+	if (firstChar === '_') {
+		return '%5f' + restOfIt;
+	}
+	else if (firstChar === '%') {
+		return '%25' + restOfIt;
+	}
+	else {
+		return title;
+	}
+}
+
+/*
+Reverse what mangleTitle does. Used to obtain title from _id (in convertFromSkinnyTiddler).
+*/
+CouchAdaptor.prototype.demangleTitle = function(title) {
+	if (title.length < 3) {
+		return title;
+	}
+	var firstThree = title.substring(0, 3);
+	var restOfIt = title.substring(3);
+	if (firstThree === '%5f') {
+		return '_' + restOfIt;
+	}
+	else if (firstThree === '%25') {
+		return '%' + restOfIt;
+	}
+	else {
+		return title;
+	}
+}
+
 CouchAdaptor.prototype.deleteTiddler = function(title, callback, options) {
 	var self = this;
 	if (!options.tiddlerInfo || !options.tiddlerInfo.adaptorInfo || typeof options.tiddlerInfo.adaptorInfo._rev == "undefined") {
@@ -103,7 +145,7 @@ CouchAdaptor.prototype.deleteTiddler = function(title, callback, options) {
 	}
 	// Issue HTTP request to delete the tiddler
 	$tw.utils.httpRequest({
-		url: this.urlPrefix +  "/" + encodeURIComponent(title),
+		url: this.urlPrefix +  "/" + encodeURIComponent(self.mangleTitle(title)),
 		type: "DELETE",
 		callback: function(err, data, request) {
 			if(err) {
@@ -117,7 +159,7 @@ CouchAdaptor.prototype.deleteTiddler = function(title, callback, options) {
 };
 
 CouchAdaptor.prototype.convertFromSkinnyTiddler = function(row) {
-	return {title: row.key, revision: row.value};
+	return {title: this.demangleTitle(row.key), revision: row.value};
 }
 
 /* for this version just copy all fields across, no special handling */
