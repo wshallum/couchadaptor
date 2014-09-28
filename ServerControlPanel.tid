@@ -6,7 +6,12 @@ tags: $:/tags/ControlPanel
 Log in to ~CouchDB: <$button message="tm-login">Login</$button>
 </$reveal>
 <$reveal state="$:/status/IsLoggedIn" type="match" text="yes">
+<$reveal state="$:/status/UserName" type="nomatch" text="">
 Logged in as {{$:/status/UserName}} <$button message="tm-logout">Logout</$button>
+</$reveal>
+<$reveal state="$:/status/UserName" type="match" text="">
+Logged in with no username: ~CouchDB is probably in [[admin party mode|http://docs.couchdb.org/en/latest/intro/security.html#the-admin-party]]. <$button message="tm-logout">Logout</$button>
+</$reveal>
 </$reveal>
 
 <$button message="tm-server-refresh">Refresh</$button> to fetch changes from the server immediately

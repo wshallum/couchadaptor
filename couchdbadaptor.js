@@ -215,6 +215,10 @@ CouchAdaptor.prototype.getStatus = function(callback) {
 			if (json && json.userCtx) {
 				username = json.userCtx.name;
 				isLoggedIn = (username !== null);
+				if (!isLoggedIn && json.userCtx.roles.length == 1 && json.userCtx.roles[0] === '_admin') {
+					/* admin party mode */
+					isLoggedIn = true;
+				}
 			}
 			callback(null, isLoggedIn, username);
 		}
