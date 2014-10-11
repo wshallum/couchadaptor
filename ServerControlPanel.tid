@@ -2,6 +2,20 @@ title: $:/plugins/wshallum/couchadaptor/ServerControlPanel
 caption: Server
 tags: $:/tags/ControlPanel
 
+!!! Connection Info
+
+Note: cannot be changed at runtime. To change, edit `config.multids` and rebuild the HTML.
+
+~CouchDB URL: <$transclude tiddler="$:/plugins/wshallum/couchadaptor/config/Url">AUTO</$transclude>
+
+Design document name: <$transclude tiddler="$:/plugins/wshallum/couchadaptor/config/DesignDocumentName">AUTO</$transclude>
+
+Needs XHR withCredentials: <$transclude tiddler="$:/plugins/wshallum/couchadaptor/config/RequiresWithCredentials">no</$transclude>
+
+<$button message="tm-server-refresh">Refresh</$button> to fetch changes from the server immediately
+
+!!! Authentication
+
 <$reveal state="$:/status/IsLoggedIn" type="nomatch" text="yes">
 Log in to ~CouchDB: <$button message="tm-login">Login</$button>
 </$reveal>
@@ -13,5 +27,3 @@ Logged in as {{$:/status/UserName}} <$button message="tm-logout">Logout</$button
 Logged in with no username: ~CouchDB is probably in [[admin party mode|http://docs.couchdb.org/en/latest/intro/security.html#the-admin-party]]. <$button message="tm-logout">Logout</$button>
 </$reveal>
 </$reveal>
-
-<$button message="tm-server-refresh">Refresh</$button> to fetch changes from the server immediately

@@ -12,13 +12,60 @@ A sync adaptor module for synchronising with CouchDB
 /*global $tw: false */
 "use strict";
 
+var CONFIG_PREFIX = "$:/plugins/wshallum/couchadaptor/config/";
+
 function CouchAdaptor(options) {
 	this.wiki = options.wiki;
 	this.logger = new $tw.utils.Logger("CouchAdaptor");
-	this.urlPrefix = '/tw/'; // TODO make configurable
-	this.designDocName = '_design/tw'; // TODO make configurable
-	this.sessionUrl = '/_session';
+	this.readConfig();
 }
+
+/*
+Reads config and sets up URLs.
+*/
+CouchAdaptor.prototype.readConfig = function() {
+	var url = this.wiki.getTiddlerText(CONFIG_PREFIX + "Url", "AUTO").trim(),
+	    designDocName = this.wiki.getTiddlerText(CONFIG_PREFIX + "DesignDocumentName", "AUTO").trim(),
+	    requiresWithCreds = this.wiki.getTiddlerText(CONFIG_PREFIX + "RequiresWithCredentials", "no").trim(),
+	    docUrl = document.location.href,
+	    pathParts = document.location.pathname.split("/");
+	if (url === "AUTO") {
+		// assume loaded as PREFIX/_design/DESIGNDOCNAME/HTMLFILENAME
+		this.urlPrefix = pathParts.slice(0, -3).join("/");
+		if (designDocName === "AUTO") {
+			this.designDocName = pathParts[pathParts.length - 2];
+		}
+		else {
+			this.designDocName = designDocName;
+		}
+		this.sessionUrl = '/_session';
+	}
+	else {
+		this.urlPrefix = url;
+		if (this.urlPrefix.substring(this.urlPrefix.length - 1) === "/") {
+			this.urlPrefix = this.urlPrefix.substring(0, this.urlPrefix.length - 1);
+		}
+		if (designDocName === "AUTO") {
+			// there is no sensible way to "AUTO" a design document name from a custom URL
+			// so just use the default
+			this.designDocName = "tw";
+		}
+		else {
+			this.designDocName = designDocName;
+		}
+		// urlPrefix is ...../dbname so _session is obtained by replacing the dbname with _session
+		this.sessionUrl = this.urlPrefix.substring(0, this.urlPrefix.lastIndexOf("/")) + "/_session";
+	}
+	this.xhrNeedsWithCredentials = (requiresWithCreds === "yes");
+};
+
+CouchAdaptor.prototype.getUrlForTitle = function(title) {
+	return this.urlPrefix +  "/" + encodeURIComponent(this.mangleTitle(title));
+};
+
+CouchAdaptor.prototype.getUrlForView = function(viewName) {
+	return this.urlPrefix +  "/_design/" + this.designDocName + "/_view/" + viewName;
+};
 
 /*
 getTiddlerInfo(tiddler)
@@ -36,7 +83,7 @@ CouchAdaptor.prototype.getTiddlerInfo = function(tiddler) {
 CouchAdaptor.prototype.getSkinnyTiddlers = function(callback) {
 	var self = this;
 	$tw.utils.httpRequest({
-		url: this.urlPrefix + this.designDocName + "/_view/skinny-tiddlers",
+		url: this.getUrlForView("skinny-tiddlers"),
 		callback: function(err, data) {
 			// Check for errors
 			if(err) {
@@ -63,7 +110,7 @@ CouchAdaptor.prototype.saveTiddler = function(tiddler, callback, options) {
 	}
 	convertedTiddler = JSON.stringify(convertedTiddler, null, false);
 	$tw.utils.httpRequest({
-		url: this.urlPrefix +  "/" + encodeURIComponent(self.mangleTitle(tiddler.fields.title)),
+		url: this.getUrlForTitle(tiddler.fields.title),
 		type: "PUT",
 		headers: {
 			"Content-type": "application/json"
@@ -84,7 +131,7 @@ CouchAdaptor.prototype.saveTiddler = function(tiddler, callback, options) {
 CouchAdaptor.prototype.loadTiddler = function(title, callback) {
 	var self = this;
 	$tw.utils.httpRequest({
-		url: this.urlPrefix + "/" + encodeURIComponent(self.mangleTitle(title)),
+		url: this.getUrlForTitle(title),
 		callback: function(err, data, request) {
 			if(err) {
 				return callback(err);
@@ -145,7 +192,7 @@ CouchAdaptor.prototype.deleteTiddler = function(title, callback, options) {
 	}
 	// Issue HTTP request to delete the tiddler
 	$tw.utils.httpRequest({
-		url: this.urlPrefix +  "/" + encodeURIComponent(self.mangleTitle(title)),
+		url: this.getUrlForTitle(title),
 		type: "DELETE",
 		callback: function(err, data, request) {
 			if(err) {

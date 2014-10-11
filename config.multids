@@ -1,0 +1,22 @@
+title: $:/plugins/wshallum/couchadaptor/config/
+
+# Url: AUTO means this TiddlyWiki will be loaded as a CouchApp
+# at SERVER/DBNAME/_design/DESIGNDOCNAME/ATTACHMENTNAME
+# Otherwise please use the CouchDB database URL 
+# e.g. http://couchdb.example.com/dbname 
+# and set DesignDocumentName
+Url: AUTO
+
+# DesignDocumentName: AUTO only makes sense with Url: AUTO, 
+# otherwise please specify the design document name
+# If "AUTO" and Url not "AUTO" then defaults to "tw" which is
+# the default name used in the couchapp.js file
+DesignDocumentName: AUTO
+
+# RequiresWithCredentials: yes/no
+# This controls whether the XHR requests to the CouchDB server are made
+# with XHR.withCredentials = true or not. 
+# Set to yes if the CouchDB server requires authentication and is on a separate
+# domain from the TiddlyWiki HTML file
+# If on a separate domain remember to set up CORS on the CouchDB server.
+RequiresWithCredentials: no
