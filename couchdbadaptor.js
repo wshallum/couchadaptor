@@ -68,6 +68,57 @@ CouchAdaptor.prototype.getUrlForView = function(viewName) {
 };
 
 /*
+Copied from TiddlyWiki5 core/modules/utils/dom/http.js to add support for xhr.withCredentials
+*/
+function httpRequest(options) {
+	var type = options.type || "GET",
+		headers = options.headers || {accept: "application/json"},
+		request = new XMLHttpRequest(),
+		data = "",
+		f,results;
+	// Massage the data hashmap into a string
+	if(options.data) {
+		if(typeof options.data === "string") { // Already a string
+			data = options.data;
+		} else { // A hashmap of strings
+			results = [];
+			$tw.utils.each(options.data,function(dataItem,dataItemTitle) {
+				results.push(dataItemTitle + "=" + encodeURIComponent(dataItem));
+			});
+			data = results.join("&");
+		}
+	}
+	// for CORS if required
+	if (options.withCredentials) {
+		request.withCredentials = true;
+	}
+	// Set up the state change handler
+	request.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200 || this.status === 201 || this.status === 204) {
+				// Success!
+				options.callback(null,this.responseText,this);
+				return;
+			}
+		// Something went wrong
+		options.callback("XMLHttpRequest error code: " + this.status);
+		}
+	};
+	// Make the request
+	request.open(type,options.url,true);
+	if(headers) {
+		$tw.utils.each(headers,function(header,headerTitle,object) {
+			request.setRequestHeader(headerTitle,header);
+		});
+	}
+	if(data && !$tw.utils.hop(headers,"Content-type")) {
+		request.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset=UTF-8");
+	}
+	request.send(data);
+	return request;
+};
+
+/*
 getTiddlerInfo(tiddler)
 getSkinnyTiddlers(callback(err,data)) data is array of {title: ..., revision: ...}
 saveTiddler(tiddler, callback(err, adaptorInfo, revision), options) options has options.tiddlerInfo
@@ -82,8 +133,9 @@ CouchAdaptor.prototype.getTiddlerInfo = function(tiddler) {
 
 CouchAdaptor.prototype.getSkinnyTiddlers = function(callback) {
 	var self = this;
-	$tw.utils.httpRequest({
+	httpRequest({
 		url: this.getUrlForView("skinny-tiddlers"),
+		withCredentials: this.xhrNeedsWithCredentials,
 		callback: function(err, data) {
 			// Check for errors
 			if(err) {
@@ -109,13 +161,14 @@ CouchAdaptor.prototype.saveTiddler = function(tiddler, callback, options) {
 		convertedTiddler._rev = tiddlerInfo.adaptorInfo._rev;
 	}
 	convertedTiddler = JSON.stringify(convertedTiddler, null, false);
-	$tw.utils.httpRequest({
+	httpRequest({
 		url: this.getUrlForTitle(tiddler.fields.title),
 		type: "PUT",
 		headers: {
 			"Content-type": "application/json"
 		},
 		data: convertedTiddler,
+		withCredentials: this.xhrNeedsWithCredentials,
 		callback: function(err,data,request) {
 			if(err) {
 				return callback(err);
@@ -130,8 +183,9 @@ CouchAdaptor.prototype.saveTiddler = function(tiddler, callback, options) {
 
 CouchAdaptor.prototype.loadTiddler = function(title, callback) {
 	var self = this;
-	$tw.utils.httpRequest({
+	httpRequest({
 		url: this.getUrlForTitle(title),
+		withCredentials: this.xhrNeedsWithCredentials,
 		callback: function(err, data, request) {
 			if(err) {
 				return callback(err);
@@ -191,9 +245,10 @@ CouchAdaptor.prototype.deleteTiddler = function(title, callback, options) {
 		callback(null);
 	}
 	// Issue HTTP request to delete the tiddler
-	$tw.utils.httpRequest({
+	httpRequest({
 		url: this.getUrlForTitle(title),
 		type: "DELETE",
+		withCredentials: this.xhrNeedsWithCredentials,
 		callback: function(err, data, request) {
 			if(err) {
 				return callback(err);
@@ -246,8 +301,9 @@ CouchAdaptor.prototype.convertFromCouch = function(tiddlerFields) {
 }
 
 CouchAdaptor.prototype.getStatus = function(callback) {
-	$tw.utils.httpRequest({
+	httpRequest({
 		url: this.sessionUrl,
+		withCredentials: this.xhrNeedsWithCredentials,
 		callback: function(err, data) {
 			if (err) {
 				return callback(err);
@@ -280,22 +336,24 @@ CouchAdaptor.prototype.login = function(username, password, callback) {
 			name: username,
 			password: password
 		},
+		withCredentials: this.xhrNeedsWithCredentials,
 		callback: function(err, data) {
 			callback(err);
 		}
 	};
-	$tw.utils.httpRequest(options);
+	httpRequest(options);
 }
 
 CouchAdaptor.prototype.logout = function(callback) {
 	var options = {
 		url: this.sessionUrl,
 		type: "DELETE",
+		withCredentials: this.xhrNeedsWithCredentials,
 		callback: function(err) {
 			callback(err);
 		}
 	};
-	$tw.utils.httpRequest(options);
+	httpRequest(options);
 }
 
 
