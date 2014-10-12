@@ -31,8 +31,6 @@ Click the "Fix this" link in the bottom right corner of the page and follow the 
 This plugin currently requires you to build your own empty wiki template that you will then upload to CouchDB. In the future maybe an empty 
 template will be provided.
 
-*TODO: Instructions for Windows users*
-
 1. To build the wiki, a TiddlyWiki5 Node.js installation is required. Install it following 
 [the instructions from the TiddlyWiki site](http://tiddlywiki.com/static/GettingStarted%2520-%2520Node.js.html)
 2. Download the contents of this repository from GitHub (clone it or click the 
