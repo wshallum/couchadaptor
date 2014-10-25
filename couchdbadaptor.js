@@ -297,6 +297,7 @@ CouchAdaptor.prototype.convertFromCouch = function(tiddlerFields) {
 			result[title] = tiddlerFields[title];
 		}
 	});
+	result["revision"] = tiddlerFields["_rev"];
 	return result;
 }
 
@@ -354,6 +355,33 @@ CouchAdaptor.prototype.logout = function(callback) {
 		}
 	};
 	httpRequest(options);
+}
+
+CouchAdaptor.prototype.loadSystemTiddlers = function(callback) {
+	var self = this;
+	httpRequest({
+		// according to the Unicode Collation CouchDB uses, after "/" is "\"
+		url: this.getUrlForView("skinny-tiddlers") + "?include_docs=true&startkey=\"$:/\"&endkey=\"$:\\\\\"&inclusive_end=false",
+		withCredentials: this.xhrNeedsWithCredentials,
+		callback: function(err, data) {
+			// Check for errors
+			if(err) {
+				self.logger.alert("Error in loadSystemTiddlers:", err);
+				return callback(err);
+			}
+			// Process the tiddlers
+			var tiddlers = JSON.parse(data).rows;
+			var convertedTiddlers = [];
+			for(var i=0; i < tiddlers.length; i++) {
+				// just in case the filter on the view isn't good enough
+				if (tiddlers[i]._id.indexOf("$:/") === 0) {
+					convertedTiddlers.push(self.convertFromCouch(tiddlers[i].doc);
+				}
+			}
+			// Invoke the callback
+			callback(null, convertedTiddlers);
+		}
+	});
 }
 
 

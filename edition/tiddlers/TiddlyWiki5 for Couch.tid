@@ -11,5 +11,5 @@ This uses https://github.com/wshallum/couchadaptor ([[$:/plugins/wshallum/coucha
 
 ! Issues (inherited from the sync implementation?)
 
-* [[$:/DefaultTiddlers]] doesn't work because thanks to lazy loading it is only loaded after it is needed
+* Modules / plugins stored on the server (not part of the build process) probably won't work
 * UI state (eg current tab status) is shared between all users of the wiki, meaning that the UI can spontaneously change in response to a server sync
