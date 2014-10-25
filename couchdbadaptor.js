@@ -374,8 +374,8 @@ CouchAdaptor.prototype.loadSystemTiddlers = function(callback) {
 			var convertedTiddlers = [];
 			for(var i=0; i < tiddlers.length; i++) {
 				// just in case the filter on the view isn't good enough
-				if (tiddlers[i]._id.indexOf("$:/") === 0) {
-					convertedTiddlers.push(self.convertFromCouch(tiddlers[i].doc);
+				if (tiddlers[i].id.indexOf("$:/") === 0) {
+					convertedTiddlers.push(self.convertFromCouch(tiddlers[i].doc));
 				}
 			}
 			// Invoke the callback

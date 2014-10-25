@@ -45,7 +45,7 @@ exports.startup = function(continueStartupCallback) {
 		}
 		return continueStartupCallback();
 	});
-}
+};
 
 // vim: ts=8:sts=8:sw=8:noet
 
