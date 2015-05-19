@@ -260,9 +260,12 @@ CouchAdaptor.prototype.deleteTiddler = function(title, callback, options) {
 	});
 };
 
+/* The response should include the tiddler fields as an object in the value property*/
 CouchAdaptor.prototype.convertFromSkinnyTiddler = function(row) {
-	return {title: this.demangleTitle(row.key), revision: row.value};
+	row.value.title=this.demangleTitle(row.id); //inject the title because is not included in the fields
+	return row.value;
 }
+
 
 /* 
  * Copy all fields to "fields" sub-object except for the "revision" field. 
