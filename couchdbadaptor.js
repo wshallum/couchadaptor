@@ -264,17 +264,26 @@ CouchAdaptor.prototype.convertFromSkinnyTiddler = function(row) {
 	return {title: this.demangleTitle(row.key), revision: row.value};
 }
 
-/* for this version just copy all fields across, no special handling */
+/* 
+ * Copy all fields to "fields" sub-object except for the "revision" field. 
+ * See also: TiddlyWebAdaptor.prototype.convertTiddlerToTiddlyWebFormat.
+ */
 CouchAdaptor.prototype.convertToCouch = function(tiddler) {
 	var result = { fields: {} };
 	if (tiddler) {
 		$tw.utils.each(tiddler.fields,function(element,title,object) {
 			if (title === "revision") {
 				/* do not store revision as a field */
+				return;
 			}
-			else {
-				result.fields[title] = tiddler.fields[title]
-			}
+			// Convert fields to string except for tags, which
+			// must stay as an array.
+			// Fields that must be properly stringified include:
+			// modified, created (see boot/boot.js)
+			var fieldString = title === "tags" ? 
+				tiddler.fields.tags :
+				tiddler.getFieldString(title);
+			result.fields[title] = fieldString;
 		});
 	}
 	// Default the content type
