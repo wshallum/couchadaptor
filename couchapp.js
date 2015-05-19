@@ -9,8 +9,15 @@ ddoc = {
 
 // _id is title
 ddoc.views['skinny-tiddlers'] = {
-	map: function(doc) {
-		emit(doc._id, doc._rev);
+	map: function (doc) {
+    		fields = {};
+    		for(var field in doc.fields ){
+    			//text should not be included, neither title. We also avoid to send too long fields
+			 if( ['text','title'].indexOf(field) === -1 && doc.fields[field].length < 1024){
+			 	fields[field] = doc.fields[field];
+			 }
+    		}
+		emit(doc._id,fields);
 	}
 }
 
