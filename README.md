@@ -61,3 +61,6 @@ This is a shell script fragment that will be loaded by the `bin/push.sh` script.
 This is possible. If the wiki HTML is outside CouchDB, the database URL and design document name needs to be specified manually. See the config.multids file for more details.
 
 Also, if the HTML is served from a different domain from the CouchDB domain, you may need to [set up CORS on the CouchDB server](http://docs.couchdb.org/en/1.6.1/config/http.html#config-cors).
+
+_NOTE_: currently the adaptor only starts if the wiki is accessed using HTTP or HTTPS. It will not start if accessed
+using a `file://` url. Please put the wiki HTML on a web server or run a local web server to use the adaptor.
