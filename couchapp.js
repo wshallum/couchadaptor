@@ -17,6 +17,7 @@ ddoc.views['skinny-tiddlers'] = {
 			 	fields[field] = doc.fields[field];
 			 }
     		}
+    		fields.revision = doc._rev; //required for proper sync 
 		emit(doc._id,fields);
 	}
 }
