@@ -279,12 +279,19 @@ CouchAdaptor.prototype.convertToCouch = function(tiddler) {
 				/* do not store revision as a field */
 				return;
 			}
-			if(title === "_attachments" && !tiddler.isDraft()){
-			  //Since the draft and the original tiddler are not the same document
-			  //the draft does not has the attachments
-			  result._attachments = element; //attachments should be stored out of fields object
+
+			if (title === "_couchadaptor_attachments" && !tiddler.isDraft()) {
+				// Handle posting back attachment stubs to the
+				// server.  If this is a draft tiddler, the
+				// _couchadaptor_attachments tiddler field will
+				// be copied from the original but there are
+				// (hopefully!) no attachments in CouchDB for
+				// the draft, so don't send it.
+
+				result._attachments = element;
 				return;
 			}
+
 			// Convert fields to string except for tags, which
 			// must stay as an array.
 			// Fields that must be properly stringified include:
@@ -300,7 +307,7 @@ CouchAdaptor.prototype.convertToCouch = function(tiddler) {
 	return result;
 }
 
-/* for this version just copy all fields across except _rev and _id */
+/* copy all fields across except _rev, _id, _attachments */
 CouchAdaptor.prototype.convertFromCouch = function(tiddlerFields) {
 	var self = this, result = {};
 	// Transfer the fields, pulling down the `fields` hashmap
@@ -309,12 +316,25 @@ CouchAdaptor.prototype.convertFromCouch = function(tiddlerFields) {
 			$tw.utils.each(element,function(element, subTitle, object) {
 				result[subTitle] = element;
 			});
-		} else if (title === "_id" || title === "_rev") {
-			/* skip these */
+		} else if (title === "_id" || title === "_rev" || title === "_attachments") {
+			/* skip these. _id is derived from title. _rev and
+			 * _attachments handled specially below.
+			 */
 		} else {
 			result[title] = tiddlerFields[title];
 		}
 	});
+
+	// "_attachments" is included if the CouchDB document has attachments.
+	// See:
+	// http://docs.couchdb.org/en/1.6.1/api/document/common.html#get--db-docid
+	// This adaptor does not use attachments but some people manually add
+	// attachments to tiddlers in CouchDB and expect them to be preserved.
+	// See also convertToCouch above.
+	if (typeof tiddlerFields["_attachments"] != 'undefined') {
+		result["_couchadaptor_attachments"] = tiddlerFields["_attachments"];
+	}
+
 	result["revision"] = tiddlerFields["_rev"];
 	return result;
 }

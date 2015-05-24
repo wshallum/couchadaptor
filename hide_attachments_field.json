@@ -1,0 +1,7 @@
+[
+	{
+		"title": "$:/config/EditTemplateFields/Visibility/_couchadaptor_attachments",
+		"text": "hide",
+		"comment": "the text needs to be exactly 'hide' without a trailing newline so we cannot store this in a .tid file"
+	}
+]
