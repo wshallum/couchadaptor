@@ -281,8 +281,8 @@ CouchAdaptor.prototype.convertToCouch = function(tiddler) {
 			}
 			if(title === "_attachments" && !tiddler.isDraft()){
 			  //Since the draft and the original tiddler are not the same document
-				//the draft does not has the attachments
-					result._attachments = element; //attachments should be stored out of fields object
+			  //the draft does not has the attachments
+			  result._attachments = element; //attachments should be stored out of fields object
 				return;
 			}
 			// Convert fields to string except for tags, which
