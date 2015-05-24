@@ -267,8 +267,8 @@ CouchAdaptor.prototype.convertFromSkinnyTiddler = function(row) {
 }
 
 
-/* 
- * Copy all fields to "fields" sub-object except for the "revision" field. 
+/*
+ * Copy all fields to "fields" sub-object except for the "revision" field.
  * See also: TiddlyWebAdaptor.prototype.convertTiddlerToTiddlyWebFormat.
  */
 CouchAdaptor.prototype.convertToCouch = function(tiddler) {
@@ -279,11 +279,17 @@ CouchAdaptor.prototype.convertToCouch = function(tiddler) {
 				/* do not store revision as a field */
 				return;
 			}
+			if(title === "_attachments" && !tiddler.isDraft()){
+			  //Since the draft and the original tiddler are not the same document
+				//the draft does not has the attachments
+					result._attachments = element; //attachments should be stored out of fields object
+				return;
+			}
 			// Convert fields to string except for tags, which
 			// must stay as an array.
 			// Fields that must be properly stringified include:
 			// modified, created (see boot/boot.js)
-			var fieldString = title === "tags" ? 
+			var fieldString = title === "tags" ?
 				tiddler.fields.tags :
 				tiddler.getFieldString(title);
 			result.fields[title] = fieldString;
