@@ -64,3 +64,44 @@ Also, if the HTML is served from a different domain from the CouchDB domain, you
 
 _NOTE_: currently the adaptor only starts if the wiki is accessed using HTTP or HTTPS. It will not start if accessed
 using a `file://` url. Please put the wiki HTML on a web server or run a local web server to use the adaptor.
+
+## Adding Plugins
+Plugins are one of the things that makes TiddlyWiki5 so usable, and it comes with a number of them. In order to have plugins available in that generated CouchDB Design document, we have to construct the base html wiki to include the plugins we desire. This procedure only deals with plugins available in TiddlyWiki5, but it should be straitforward to get other ones going as well.
+
+We have to do three things to get this working with couchadaptor:
+ 
+ 1. Checkout the TiddlyWiki5 source code in folder next to couchadaptor. Starting from the couchadaptor checkout:
+  ```bash
+   cd ..
+   git clone https://github.com/Jermolene/TiddlyWiki5.git 
+ ```
+ 
+ 2. Modify the `bin/couchbld.sh` to point to the location of the additional plugins as follows:
+  ```bash
+  #!/bin/bash
+
+  TIDDLYWIKI_PLUGIN_PATH=../:../TiddlyWiki5/plugins/tiddlywiki tiddlywiki edition/ --verbose --output out \
+	--rendertiddler $:/core/save/all index.html text/plain \
+  || exit 1
+  ```
+  
+ 3. Modify the `edition\tiddlywiki.info` file to add any plugins you want. `couchadaptor` is already in the file, so I added `markdown` to the end of the list in the **plugins** section:
+  ```json
+  {
+	"plugins": [
+		"couchadaptor",
+		"markdown"
+	],
+	"themes": [
+		"tiddlywiki/vanilla",
+		"tiddlywiki/snowwhite"
+	],
+	"build": {
+		"index": [
+			"--rendertiddler","$:/core/save/all","index.html","text/plain"]
+	}
+}
+  ```
+ 4. Now follow the regular directions above!
+
+I'm sure this could be extended to third party plugins provided they play well with the sync adaptor. Obviously, some plugins don't make a lot of sense to try, such as TahoeLAFS :)
