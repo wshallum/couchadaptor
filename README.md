@@ -66,31 +66,17 @@ _NOTE_: currently the adaptor only starts if the wiki is accessed using HTTP or 
 using a `file://` url. Please put the wiki HTML on a web server or run a local web server to use the adaptor.
 
 ## Adding Plugins
-Plugins are one of the things that makes TiddlyWiki5 so usable, and it comes with a number of them. In order to have plugins available in that generated CouchDB Design document, we have to construct the base html wiki to include the plugins we desire. This procedure only deals with plugins available in TiddlyWiki5, but it should be straitforward to get other ones going as well.
+Plugins are one of the things that makes TiddlyWiki5 so usable, and it comes with a number of them. In order to have plugins available in that generated CouchDB Design document, we have to construct the base html wiki to include the plugins we desire. This procedure only deals with plugins available in TiddlyWiki5, but it should be straightforward to get other ones going as well.
 
-We have to do three things to get this working with couchadaptor:
- 
- 1. Checkout the TiddlyWiki5 source code in folder next to couchadaptor. Starting from the couchadaptor checkout:
-  ```bash
-   cd ..
-   git clone https://github.com/Jermolene/TiddlyWiki5.git 
- ```
- 
- 2. Modify the `bin/couchbld.sh` to point to the location of the additional plugins as follows:
-  ```bash
-  #!/bin/bash
+To add plugins, modify the `edition/tiddlywiki.info` file to add any plugins you want to the `plugins` array. The `couchadaptor` plugin is already there and should not be removed. 
 
-  TIDDLYWIKI_PLUGIN_PATH=../:../TiddlyWiki5/plugins/tiddlywiki tiddlywiki edition/ --verbose --output out \
-	--rendertiddler $:/core/save/all index.html text/plain \
-  || exit 1
-  ```
-  
- 3. Modify the `edition\tiddlywiki.info` file to add any plugins you want. `couchadaptor` is already in the file, so I added `markdown` to the end of the list in the **plugins** section:
+Plugins included with TiddlyWiki5 (anything you can find [here](https://github.com/Jermolene/TiddlyWiki5/tree/master/plugins/tiddlywiki)) can be included using `tiddlywiki/pluginname` e.g. for the Markdown plugin:
+
   ```json
   {
 	"plugins": [
 		"couchadaptor",
-		"markdown"
+		"tiddlywiki/markdown"
 	],
 	"themes": [
 		"tiddlywiki/vanilla",
@@ -102,6 +88,9 @@ We have to do three things to get this working with couchadaptor:
 	}
 }
   ```
- 4. Now follow the regular directions above!
+
+Then follow the instructions above to rebuild and upload the wiki.
+
+For other plugins you may have to modify the `TIDDLYWIKI_PLUGIN_PATH` inside `couchbld.sh` or `couchbld.bat` to help TiddlyWiki find your plugins.
 
 I'm sure this could be extended to third party plugins provided they play well with the sync adaptor. Obviously, some plugins don't make a lot of sense to try, such as TahoeLAFS :)
